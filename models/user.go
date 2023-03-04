@@ -14,6 +14,10 @@ var (
 )
 
 func GetAllUsers() []User {
+	if len(userList) == 0 {
+		return []User{}
+	}
+
 	return userList
 }
 
