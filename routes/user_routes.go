@@ -15,4 +15,5 @@ func NewRouter(e *echo.Echo) {
 	usersGroup.GET("/:id", userController.GetById)
 	usersGroup.POST("/create", userController.Create)
 	usersGroup.PUT("/:id/update", userController.Update)
+	usersGroup.DELETE("/:id/delete", userController.Delete)
 }

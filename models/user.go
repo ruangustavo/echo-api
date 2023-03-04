@@ -51,3 +51,14 @@ func UpdateUser(user *User) error {
 
 	return fmt.Errorf("User not found")
 }
+
+func DeleteUser(user *User) error {
+	for i, u := range userList {
+		if user.ID == u.ID {
+			userList = append(userList[:i], userList[i+1:]...)
+			return nil
+		}
+	}
+
+	return fmt.Errorf("User not found")
+}
