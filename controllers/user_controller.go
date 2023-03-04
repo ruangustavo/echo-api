@@ -91,7 +91,7 @@ func (u *UserController) Delete(c echo.Context) error {
 	}
 
 	if err := models.DeleteUser(user); err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, user)
