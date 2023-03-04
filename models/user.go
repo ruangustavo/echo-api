@@ -1,6 +1,8 @@
 package models
 
-import "fmt"
+import (
+	"echo-api/controllers/errors"
+)
 
 type User struct {
 	ID    int    `json:"id"`
@@ -28,8 +30,7 @@ func GetUserById(id int) (*User, error) {
 		}
 	}
 
-	err := fmt.Errorf("User not found")
-	return nil, err
+	return nil, errors.NewUserError("User not found")
 }
 
 func CreateUser(user *User) error {
@@ -48,7 +49,7 @@ func UpdateUser(user *User) error {
 		}
 	}
 
-	return fmt.Errorf("User not found")
+	return errors.NewUserError("User not found")
 }
 
 func DeleteUser(user *User) error {
@@ -59,5 +60,5 @@ func DeleteUser(user *User) error {
 		}
 	}
 
-	return fmt.Errorf("User not found")
+	return errors.NewUserError("User not found")
 }
