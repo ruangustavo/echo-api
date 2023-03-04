@@ -8,7 +8,7 @@ import (
 
 func NewRouter(e *echo.Echo) {
 	userController := controller.NewUserController()
-	usersGroup := e.Group("/users")
+	usersGroup := e.Group("api/users")
 
 	// Routes
 	usersGroup.GET("/", userController.GetAll)
