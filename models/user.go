@@ -14,11 +14,6 @@ var (
 )
 
 func GetAllUsers() []User {
-	if len(userList) == 0 {
-		userList = append(userList, User{ID: id, Name: "John", Email: "johndoe@email.com"})
-		id = 1
-	}
-
 	return userList
 }
 
