@@ -40,3 +40,14 @@ func CreateUser(user *User) error {
 
 	return nil
 }
+
+func UpdateUser(user *User) error {
+	for i, u := range userList {
+		if user.ID == u.ID {
+			userList[i] = *user
+			return nil
+		}
+	}
+
+	return fmt.Errorf("User not found")
+}

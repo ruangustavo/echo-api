@@ -39,12 +39,36 @@ func (u *UserController) Create(c echo.Context) error {
 	user := new(models.User)
 
 	if err := c.Bind(user); err != nil {
-		c.String(http.StatusBadRequest, "Not working")
+		return c.String(http.StatusBadRequest, "Not working")
 	}
 
 	if err := models.CreateUser(user); err != nil {
-		c.String(http.StatusInternalServerError, "Not working")
+		return c.String(http.StatusInternalServerError, "Not working")
 	}
 
 	return c.JSON(http.StatusCreated, user)
+}
+
+func (u *UserController) Update(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	user, err := models.GetUserById(id)
+
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	if err := c.Bind(user); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	if err := models.UpdateUser(user); err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, user)
 }
