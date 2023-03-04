@@ -20,16 +20,10 @@ func (u *UserController) GetAll(c echo.Context) error {
 }
 
 func (u *UserController) GetById(c echo.Context) error {
-	id, err := strconv.Atoi(c.Param("id"))
+	user, err := u.getUserFromContext(c)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "It wasn't possible convert string id to integer"})
-	}
-
-	user, err := models.GetUserById(id)
-
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+		return c.JSON(http.StatusNotFound, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, user)
@@ -50,43 +44,23 @@ func (u *UserController) Create(c echo.Context) error {
 }
 
 func (u *UserController) Update(c echo.Context) error {
-	id, err := strconv.Atoi(c.Param("id"))
+	user, err := u.getUserFromContext(c)
 
 	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	user, err := models.GetUserById(id)
-
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	if err := c.Bind(user); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	if err := models.UpdateUser(user); err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, user)
 }
 
 func (u *UserController) Delete(c echo.Context) error {
-	id, err := strconv.Atoi(c.Param("id"))
+	user, err := u.getUserFromContext(c)
 
 	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	user, err := models.GetUserById(id)
-
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	if err := c.Bind(user); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
@@ -95,4 +69,20 @@ func (u *UserController) Delete(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, user)
+}
+
+func (u *UserController) getUserFromContext(c echo.Context) (*models.User, error) {
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := models.GetUserById(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
