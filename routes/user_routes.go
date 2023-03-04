@@ -1,13 +1,13 @@
 package routes
 
 import (
-	"echo-api/controller"
+	"echo-api/controllers"
 
 	"github.com/labstack/echo/v4"
 )
 
 func NewRouter(e *echo.Echo) {
-	userController := controller.NewUserController()
+	userController := controllers.NewUserController()
 	usersGroup := e.Group("api/users")
 
 	// Routes
