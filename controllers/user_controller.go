@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"echo-api/controllers/errors"
 	"echo-api/models"
 	"net/http"
 	"strconv"
@@ -20,16 +21,10 @@ func (u *UserController) GetAll(c echo.Context) error {
 }
 
 func (u *UserController) GetById(c echo.Context) error {
-	id, err := strconv.Atoi(c.Param("id"))
+	user, err := u.getUserFromContext(c)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "It wasn't possible convert string id to integer"})
-	}
-
-	user, err := models.GetUserById(id)
-
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+		return errors.HandleError(c, err)
 	}
 
 	return c.JSON(http.StatusOK, user)
@@ -39,60 +34,56 @@ func (u *UserController) Create(c echo.Context) error {
 	user := new(models.User)
 
 	if err := c.Bind(user); err != nil {
-		return c.String(http.StatusBadRequest, "Not working")
+		errors.HandleError(c, errors.NewUserError("Invalid user data"))
 	}
 
 	if err := models.CreateUser(user); err != nil {
-		return c.String(http.StatusInternalServerError, "Not working")
+		return errors.HandleError(c, errors.NewUserError("Failed to create user"))
 	}
 
 	return c.JSON(http.StatusCreated, user)
 }
 
 func (u *UserController) Update(c echo.Context) error {
-	id, err := strconv.Atoi(c.Param("id"))
+	user, err := u.getUserFromContext(c)
 
 	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	user, err := models.GetUserById(id)
-
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	if err := c.Bind(user); err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
+		return errors.HandleError(c, errors.NewUserError("Invalid user data"))
 	}
 
 	if err := models.UpdateUser(user); err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
+		return errors.HandleError(c, errors.NewUserError("Failed to update user"))
 	}
 
 	return c.JSON(http.StatusOK, user)
 }
 
 func (u *UserController) Delete(c echo.Context) error {
+	user, err := u.getUserFromContext(c)
+
+	if err != nil {
+		return errors.HandleError(c, err)
+	}
+
+	if err := models.DeleteUser(user); err != nil {
+		return errors.HandleError(c, errors.NewUserError("Failed to delete user"))
+	}
+
+	return c.JSON(http.StatusOK, user)
+}
+
+func (u *UserController) getUserFromContext(c echo.Context) (*models.User, error) {
 	id, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
+		return nil, errors.NewUserError("Invalid user ID")
 	}
 
 	user, err := models.GetUserById(id)
 
 	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
+		return nil, errors.NewUserError("User not found")
 	}
 
-	if err := c.Bind(user); err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	if err := models.DeleteUser(user); err != nil {
-		return c.String(http.StatusInternalServerError, err.Error())
-	}
-
-	return c.JSON(http.StatusOK, user)
+	return user, nil
 }
