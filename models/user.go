@@ -11,54 +11,55 @@ type User struct {
 }
 
 var (
-	userList []User
-	id       int
+	users      = make(map[int]*User)
+	nextUserID = 0
 )
 
 func GetAllUsers() []User {
-	if len(userList) == 0 {
-		return []User{}
+	res := make([]User, 0, len(users))
+
+	for _, user := range users {
+		res = append(res, *user)
 	}
 
-	return userList
+	return res
 }
 
 func GetUserById(id int) (*User, error) {
-	for _, user := range userList {
-		if user.ID == id {
-			return &user, nil
-		}
+	user, ok := users[id]
+
+	if !ok {
+		return nil, errors.NewUserError("User not found")
 	}
 
-	return nil, errors.NewUserError("User not found")
+	return user, nil
 }
 
 func CreateUser(user *User) error {
-	user.ID = id
-	userList = append(userList, *user)
-	id++
-
+	user.ID = nextUserID
+	users[user.ID] = user
+	nextUserID++
 	return nil
 }
 
 func UpdateUser(user *User) error {
-	for i, u := range userList {
-		if user.ID == u.ID {
-			userList[i] = *user
-			return nil
-		}
+	_, ok := users[user.ID]
+
+	if !ok {
+		return errors.NewUserError("User not found")
 	}
 
-	return errors.NewUserError("User not found")
+	users[user.ID] = user
+	return nil
 }
 
 func DeleteUser(user *User) error {
-	for i, u := range userList {
-		if user.ID == u.ID {
-			userList = append(userList[:i], userList[i+1:]...)
-			return nil
-		}
+	_, ok := users[user.ID]
+
+	if !ok {
+		return errors.NewUserError("User not found")
 	}
 
-	return errors.NewUserError("User not found")
+	delete(users, user.ID)
+	return nil
 }
